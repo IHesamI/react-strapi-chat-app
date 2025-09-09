@@ -8,7 +8,6 @@ const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
   const { user, loading } = useAuth();
 
   if (loading) {
-    // You can render a loading spinner here
     return <div>Loading...</div>;
   }
 

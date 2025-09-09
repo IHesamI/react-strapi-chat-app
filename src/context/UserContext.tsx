@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, useContext, ReactNode } from 'react';
+import React, { createContext, useState, useEffect, useContext, type ReactNode,  } from 'react';
 
 interface User {
   id: number;
@@ -25,8 +25,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       const token = localStorage.getItem('jwt');
       if (token) {
         try {
-          // Strapi's users-permissions plugin provides this endpoint to get the current user
-          const response = await fetch('http://localhost:1337/api/users/me', {
+          const response = await fetch('http://localhost:1337/api/auth/verify-token', {
             headers: {
               Authorization: `Bearer ${token}`,
             },
@@ -35,8 +34,6 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
             const userData = await response.json();
             setUser(userData);
           } else {
-            // Token is invalid or expired
-            localStorage.removeItem('jwt');
             setUser(null);
           }
         } catch (error) {
@@ -68,6 +65,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => {
   const context = useContext(UserContext);
   if (context === undefined) {
