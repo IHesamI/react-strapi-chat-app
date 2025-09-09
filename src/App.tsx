@@ -2,15 +2,21 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Login from './components/Login';
 import Signup from './components/Signup';
 import Chat from './components/Chat';
+import { UserProvider, useAuth } from './context/UserContext';
 
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
-  const token = localStorage.getItem('jwt');
-  return token ? children : <Navigate to="/login" />;
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    // You can render a loading spinner here
+    return <div>Loading...</div>;
+  }
+
+  return user ? children : <Navigate to="/login" />;
 };
 
-function App() {
+const AppRoutes = () => {
   return (
-    <Router>
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
@@ -23,6 +29,15 @@ function App() {
           }
         />
       </Routes>
+  )
+}
+
+function App() {
+  return (
+    <Router>
+      <UserProvider>
+        <AppRoutes />
+      </UserProvider>
     </Router>
   );
 }

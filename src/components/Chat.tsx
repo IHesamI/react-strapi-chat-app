@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import type { DefaultEventsMap, Socket } from 'socket.io';
 import { io } from "socket.io-client";
 import CryptoJS from 'crypto-js';
-import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/UserContext';
 
 function getUniqueCommutativeHashSync(A:string, B:string) {
   const canonicalString = [A, B].sort().join('\u0001');
@@ -16,21 +16,13 @@ const BASE_URL = "http://localhost:1337";
 const Chat = () => {
   const [messages, setMessages] = useState([]);
   const [messageText, setMessageText] = useState('');
-  const [user, setUser] = useState<{ username: string } | null>(null);
+  const { user, logout } = useAuth();
   const [targetUser, setTargetUser] = useState('');
   const [allUsers, setAllUsers] = useState<{ username: string }[]>([]);
   const messagesEndRef = useRef(null);
   const socketRef = useRef<Socket<DefaultEventsMap, DefaultEventsMap> | null>(null);
-  const navigate = useNavigate();
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    } else {
-      navigate('/login');
-    }
-
     const fetcher = async () => {
       const token = localStorage.getItem('jwt');
       const data = await fetch('http://localhost:1337/api/users', {
@@ -41,8 +33,10 @@ const Chat = () => {
       }).then(res => res.json());
       setAllUsers(data);
     }
-    fetcher();
-  }, [navigate]);
+    if (user) {
+      fetcher();
+    }
+  }, [user]);
 
   useEffect(() => {
     let ioInstance: Socket<DefaultEventsMap, DefaultEventsMap>;
@@ -127,10 +121,7 @@ const Chat = () => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('jwt');
-    localStorage.removeItem('user');
-    setUser(null);
-    navigate('/login');
+    logout();
   };
 
   return (

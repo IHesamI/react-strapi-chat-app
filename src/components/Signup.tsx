@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/UserContext';
 
 const Signup = () => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSignup = async (e: React.FormEvent) => {
@@ -23,8 +25,7 @@ const Signup = () => {
       });
       const data = await response.json();
       if (data.jwt) {
-        localStorage.setItem('jwt', data.jwt);
-        localStorage.setItem('user', JSON.stringify(data.user));
+        login(data.jwt, data.user);
         navigate('/');
       } else {
         alert('Signup failed: ' + (data.error.message || 'Unknown error'));
