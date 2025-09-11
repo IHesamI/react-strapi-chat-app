@@ -126,78 +126,86 @@ const Chat = () => {
 
   return (
     <div className="bg-gray-100 min-h-screen flex items-center justify-center font-sans p-4">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-3xl flex flex-col h-[90vh]">
-        <header className="bg-blue-600 text-white p-4 rounded-t-lg flex justify-between items-center">
-          <div className="flex items-center space-x-2">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-message-circle-code">
-              <path d="M7.9 20A16.9 16.9 0 0 1 5 17c-2.7-2.7-2.7-7.2 0-9.9S10.3 4.4 13 7c2.7 2.7 2.7 7.2 0 9.9-1.9 1.8-4.3 2.6-6 3.1Z"/><path d="m15.5 8.5-2 3 2 3"/><path d="M21 15c-1.5 1.9-3.9 2.6-6 3.1"/><path d="M12.9 21.1c1.9-.3 3.3-1.4 4.1-2.2"/><path d="m20.5 7.5-2-3 2-3"/>
-            </svg>
-            <h1 className="text-xl font-bold">Simple Chat App</h1>
-            <select
-              onChange={(e) => setTargetUser(e.target.value)}
-              className="text-black"
-            >
-              <option value="">Select a user to chat with</option>
-              {allUsers.map(item => {
-                if (user && item.username === user?.username) return null;
-                return <option key={item.username} value={item.username}>{item.username}</option>
-              })}
-            </select>
-          </div>
-          <div>
-            {user?.username}
-            <button onClick={handleLogout} className="ml-4 bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
-              Logout
-            </button>
-          </div>
-        </header>
-
-        <main className="flex-1 overflow-y-auto p-4 space-y-4">
-          {messages.length > 0 ? (
-            messages.map((msg, index) => (
-              <div key={index} className={`flex ${msg.user === user?.username ? 'justify-end' : 'justify-start'}`}>
-                <div className={`p-3 rounded-lg max-w-xs md:max-w-md lg:max-w-lg shadow-sm ${
-                  msg.user === user?.username
-                    ? 'bg-blue-500 text-white rounded-br-none'
-                    : 'bg-gray-200 text-gray-800 rounded-bl-none'
-                }`}>
-                  <p className="font-semibold text-xs opacity-70 mb-1">
-                    {msg.user}
-                  </p>
-                  <p>{msg.message}</p>
-                </div>
-              </div>
-            ))
-          ) : (
-            <div className="flex justify-center items-center h-full text-gray-500">
-              <p>No messages yet. Start the conversation!</p>
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-5xl flex flex-row h-[90vh] overflow-hidden">
+        <div className="w-1/3 border-r border-gray-200 flex flex-col">
+          <div className="p-4 border-b border-gray-200 flex justify-between items-center">
+            <h2 className="text-xl font-bold">Chats</h2>
+            <div>
+              {user?.username}
+              <button onClick={handleLogout} className="ml-4 bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
+                Logout
+              </button>
             </div>
-          )}
-          <div ref={messagesEndRef} />
-        </main>
+          </div>
+          <ul className="overflow-y-auto flex-1">
+            {allUsers.map(item => {
+              if (user && item.username === user?.username) return null;
+              return (
+                <li
+                  key={item.username}
+                  onClick={() => setTargetUser(item.username)}
+                  className={`p-4 cursor-pointer ${targetUser === item.username ? 'bg-blue-500 text-white' : 'hover:bg-gray-100'}`}
+                >
+                  {item.username}
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+        <div className="w-2/3 flex flex-col">
+          <header className="bg-blue-600 text-white p-4 flex justify-between items-center">
+            <div className="flex items-center space-x-2">
+              <h1 className="text-xl font-bold">{targetUser ? `Chat with ${targetUser}` : 'Select a user to start chatting'}</h1>
+            </div>
+          </header>
 
-        <footer className="p-4 bg-gray-100 rounded-b-lg border-t border-gray-200">
-          <form onSubmit={handleSendMessage} className="flex space-x-2">
-            <input
-              type="text"
-              value={messageText}
-              onChange={(e) => setMessageText(e.target.value)}
-              placeholder="Type a message..."
-              className="flex-1 p-3 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
-              disabled={!user || !targetUser}
-            />
-            <button
-              type="submit"
-              className="bg-blue-500 text-white p-3 rounded-full hover:bg-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
-              disabled={!user || !targetUser}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-send">
-                <path d="m22 2-7 20-4-9-9-4 20-7Z"/>
-                <path d="M22 2 11 13"/>
-              </svg>
-            </button>
-          </form>
-        </footer>
+          <main className="flex-1 overflow-y-auto p-4 space-y-4">
+            {messages.length > 0 ? (
+              messages.map((msg, index) => (
+                <div key={index} className={`flex ${msg.user === user?.username ? 'justify-end' : 'justify-start'}`}>
+                  <div className={`p-3 rounded-lg max-w-xs md:max-w-md lg:max-w-lg shadow-sm ${
+                    msg.user === user?.username
+                      ? 'bg-blue-500 text-white rounded-br-none'
+                      : 'bg-gray-200 text-gray-800 rounded-bl-none'
+                  }`}>
+                    <p className="font-semibold text-xs opacity-70 mb-1">
+                      {msg.user}
+                    </p>
+                    <p>{msg.message}</p>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="flex justify-center items-center h-full text-gray-500">
+                <p>No messages yet. Start the conversation!</p>
+              </div>
+            )}
+            <div ref={messagesEndRef} />
+          </main>
+
+          <footer className="p-4 bg-gray-100 border-t border-gray-200">
+            <form onSubmit={handleSendMessage} className="flex space-x-2">
+              <input
+                type="text"
+                value={messageText}
+                onChange={(e) => setMessageText(e.target.value)}
+                placeholder="Type a message..."
+                className="flex-1 p-3 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                disabled={!user || !targetUser}
+              />
+              <button
+                type="submit"
+                className="bg-blue-500 text-white p-3 rounded-full hover:bg-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+                disabled={!user || !targetUser}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-send">
+                  <path d="m22 2-7 20-4-9-9-4 20-7Z"/>
+                  <path d="M22 2 11 13"/>
+                </svg>
+              </button>
+            </form>
+          </footer>
+        </div>
       </div>
     </div>
   );
